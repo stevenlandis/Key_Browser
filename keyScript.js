@@ -5,7 +5,7 @@ chrome.runtime.sendMessage(
 );
 
 window.addEventListener('keydown', (event) => {
-    console.log(event.key);
+    console.log("pressed " + event.key);
     // console.log(event);
 
     // make sure not to fire event when typing
@@ -15,7 +15,12 @@ window.addEventListener('keydown', (event) => {
 
     // make sure a modifier isn't pressed
     if (event.ctrlKey || event.altKey || event.metaKey) {
-        return
+        return;
+    }
+
+    // make sure the key isn't being trigger on a repeat
+    if (event.repeat) {
+        return;
     }
 
     if        (event.key === 'x') {
@@ -32,7 +37,13 @@ window.addEventListener('keydown', (event) => {
         chrome.runtime.sendMessage('new tab');
     } else if (event.key === 'd') {
         doScroll(window.innerHeight/2);
+    } else if (event.key === 'e') {
+        doScroll(-window.innerHeight/2);
     }
+});
+
+window.addEventListener('keyup', (event) => {
+    
 });
 
 function isTyping(event) {
