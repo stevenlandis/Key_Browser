@@ -1,4 +1,4 @@
-console.log("hi from me");
+var scrollSpeed = 50;
 
 chrome.runtime.sendMessage(
     "Starting Content Script"
@@ -36,14 +36,16 @@ window.addEventListener('keydown', (event) => {
     } else if (event.key === 't') {
         chrome.runtime.sendMessage('new tab');
     } else if (event.key === 'd') {
-        doScroll(window.innerHeight/2);
+        startScroll(scrollSpeed);
     } else if (event.key === 'e') {
-        doScroll(-window.innerHeight/2);
+        startScroll(-scrollSpeed);
     }
 });
 
 window.addEventListener('keyup', (event) => {
-    
+    if (event.key === 'd' || event.key === 'e') {
+        stopScroll();
+    }
 });
 
 function isTyping(event) {
@@ -57,51 +59,31 @@ function isTyping(event) {
 // Scrolling Mechanics
 var scroll = {
     timer: undefined,
-    startY: undefined,
-    endY: undefined,
-    startX: undefined,
-    timeStep: undefined,
-    timeSteps: 6
+    step: undefined
 };
 
+function startScroll(dy) {
+    stopScroll();
+
+    scroll.step = dy;
+
+    doScroll(dy);
+    // start the new timer
+    scroll.timer = setInterval(() => {
+        doScroll(dy);
+    }, 50);
+}
+
 function doScroll(dy) {
+    window.scrollTo(
+        window.scrollX,
+        window.scrollY + dy
+    );
+}
+
+function stopScroll() {
     // clear an existing timer
     if (scroll.timer !== undefined) {
         clearInterval(scroll.timer);
     }
-
-    // set start and end
-    // console.log(window);
-    scroll.startY = window.scrollY;
-    if (scroll.endY === undefined) {
-        scroll.endY = scroll.startY + dy;
-    } else {
-        scroll.endY += dy;
-    }
-    
-    scroll.startX = window.scrollX;
-
-    // reset time
-    scroll.timeStep = 0;
-
-    // start the new timer
-    scroll.timer = setInterval(() => {
-        scroll.timeStep += 1;
-
-        var time = scroll.timeStep / scroll.timeSteps;
-        time = Math.sqrt(time);
-        currY = scroll.startY + time * (scroll.endY - scroll.startY);
-        console.log('scroll to ' + scroll.startX + ', '+currY+' at time '+time);
-        window.scrollTo(scroll.startX, currY);
-
-
-        // stop the timer
-        if (scroll.timeStep === scroll.timeSteps) {
-            clearInterval(scroll.timer);
-            scroll.timer = undefined;
-            scroll.startY = undefined;
-            scroll.endY = undefined;
-            scroll.startX = undefined;
-        }
-    }, 20);
 }
