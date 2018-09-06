@@ -1,0 +1,21 @@
+{
+    "name": "Key Browser",
+    "version": "1.0",
+    "description": "Browse the web with your keys",
+    "permissions": ["activeTab"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "page_action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [{
+        "matches": [
+            "http://*/*",
+            "https://*/*"
+        ],
+        "js": ["keyScript.js"]
+    }],
+    "manifest_version": 2
+}
