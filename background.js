@@ -25,6 +25,10 @@ chrome.runtime.onInstalled.addListener(function() {
                 console.log('making a new tab');
                 chrome.tabs.create({});
                 break;
+            case 'open history':
+                console.log('opening history');
+                chrome.tabs.create({url: 'chrome://history/'});
+                break;
             }
         }
     );
