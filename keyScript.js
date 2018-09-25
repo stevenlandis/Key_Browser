@@ -1,51 +1,38 @@
-var scrollSpeed = 20;
+var scrollSpeed = 10;
 var scrollAcc = 10;
 var scrollDec = 15;
 var scrollMaxSpeed = 200;
+
+var mouse = {
+    x: 0,
+    y: 0
+};
+
+var keys = [];
+
+var overlay = undefined;
 
 chrome.runtime.sendMessage(
     "Starting Content Script"
 );
 
 window.addEventListener('keydown', (event) => {
-    console.log("pressed " + event.key);
-    // console.log(event);
+    // console.log("pressed " + event.key);
+    console.log(event);
+
+    keys[event.key] = true;
+
+    // test for spedial overlay keypress
+    if (event.altKey && event.ctrlKey && event.metaKey) {
+        makeOverLay();
+    }
+
+    if (overlay === undefined) return;
 
     // make sure not to fire event when typing
     if (isTyping(event)) {
+        console.log('   STOPPED: not typing');
         return;
-    }
-
-    // make sure a modifier isn't pressed
-    if (event.ctrlKey || event.altKey || event.metaKey) {
-        return;
-    }
-
-    // make sure the key isn't being trigger on a repeat
-    if (event.repeat) {
-        return;
-    }
-
-    if        (event.key === 'x') {
-        chrome.runtime.sendMessage("close tab");
-    } else if (event.key === 'w') {
-        window.history.back();
-    } else if (event.key === 'r') {
-        window.history.forward();
-    } else if (event.key === 's') {
-        chrome.runtime.sendMessage('highlight left tab');
-    } else if (event.key === 'f') {
-        chrome.runtime.sendMessage('highlight right tab');
-    } else if (event.key === 't') {
-        chrome.runtime.sendMessage('new tab');
-    } else if (event.key === 'd') {
-        startScroll(1, scrollSpeed, scrollMaxSpeed, scrollAcc, scrollDec);
-    } else if (event.key === 'e') {
-        startScroll(-1, scrollSpeed, scrollMaxSpeed, scrollAcc, scrollDec);
-    } else if (event.key === 'y') {
-        chrome.runtime.sendMessage('open history');
-    } else if (event.key === 'g') {
-        console.log(getVisibleLinks());
     }
 });
 
@@ -53,13 +40,90 @@ window.addEventListener('keyup', (event) => {
     if (event.key === 'd' || event.key === 'e') {
         decScroll();
     }
+
+    keys[event.key] = undefined;
+    // console.log(keys);
 });
 
-document.body.addEventListener('onfocusout', (event) => {
-    console.log('bye bye');
+// document.body.addEventListener('onfocusout', (event) => {
+//     console.log('bye bye');
+// });
+
+window.addEventListener('focusout', (event) => {
+    keys = [];
+    decScroll();
 });
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+})
+
+function handleKeyPress(event) {
+    // make sure a modifier isn't pressed
+    if (event.ctrlKey || event.altKey || event.metaKey) {
+        console.log('   STOPPED: modifier pressed');
+        return;
+    }
+
+    // make sure the key isn't being trigger on a repeat
+    if (event.repeat) {
+        console.log('   STOPPED: repeated key');
+        return;
+    }
+
+    console.log('   key is processed');
+
+    if        (event.key === 'x') {
+        // close current tab
+        chrome.runtime.sendMessage("close tab");
+    } else if (event.key === 'w') {
+        // go back in history
+        window.history.back();
+    } else if (event.key === 'r') {
+        // go forward in history
+        window.history.forward();
+    } else if (event.key === 's') {
+        // move to left tab
+        chrome.runtime.sendMessage('highlight left tab');
+    } else if (event.key === 'f') {
+        // move to right tab
+        chrome.runtime.sendMessage('highlight right tab');
+    } else if (event.key === 't') {
+        // open a new tab
+        chrome.runtime.sendMessage('new tab');
+    } else if (event.key === 'd') {
+        // scroll up
+        startScroll(1, scrollSpeed, scrollMaxSpeed, scrollAcc, scrollDec);
+    } else if (event.key === 'e') {
+        // scroll down
+        startScroll(-1, scrollSpeed, scrollMaxSpeed, scrollAcc, scrollDec);
+    } else if (event.key === 'y') {
+        // open histiry
+        chrome.runtime.sendMessage('open history');
+    } else if (event.key === 'g') {
+        // open link in new tab and go to new tab
+        var link = getLinkUnderCursor();
+        if (link === undefined) return;
+
+        window.open(link);
+    } else if (event.key === 'n') {
+        // search page for link that includes 'next'
+        // and go to link
+        var link = getNextLink();
+        if (link === undefined) return;
+
+        window.open(link,"_self");
+    } else if (event.key === 'q') {
+        removeOverlay();
+    }
+}
 
 function isTyping(event) {
+    if (event.target.contentEditable === 'true') {
+        return true;
+    }
+
     return event.path.find((tag) => {
         return tag.tagName === 'INPUT' ||
                tag.tagName === 'SPAN' ||
@@ -183,4 +247,78 @@ function getVisibleLinks() {
     }
 
     return goodNodes;
+}
+
+function getElemUnderCursor() {
+    return document.elementFromPoint(mouse.x, mouse.y);
+}
+
+function getLinkUnderCursor() {
+    var elem = getElemUnderCursor();
+
+    while (elem.tagName !== 'A') {
+        elem = elem.parentElement;
+
+        if (elem === null) {
+            return undefined;
+        }
+    }
+
+    return elem.href;
+}
+
+function getNextLink() {
+    var links = document.getElementsByTagName('a');
+    for (var e of links) {
+        if (e.innerText.toLowerCase().includes('next')) {
+            return e.href;
+        }
+    }
+}
+
+function getMaxZLevel() {
+    return Math.max(
+        ...Array.from(document.querySelectorAll('body *'))
+            .map(a => parseFloat(window.getComputedStyle(a).zIndex))
+            .filter(a => !isNaN(a)));
+}
+
+function makeOverLay() {
+    if (overlay === undefined) {
+        overlay = {};
+
+        // make the element
+        overlay.elem = document.createElement('div');
+
+        overlay.elem.style.width = '100%';
+        overlay.elem.style.height = '50px';
+        overlay.elem.style.position = 'fixed';
+        overlay.elem.style.zIndex = getMaxZLevel() + 1;
+        overlay.elem.style.bottom = 0;
+        overlay.elem.style.backgroundColor = 'green';
+        overlay.elem.tabIndex = 0;
+        overlay.elem.addEventListener('blur', (event) => {
+            removeOverlay();
+        });
+        overlay.elem.addEventListener('keydown', (event) => {
+            console.log('key down');
+            event.stopPropagation();
+        });
+
+        // add to body
+        document.body.appendChild(overlay.elem);
+    }
+    
+    // focus on the element
+    document.activeElement.blur();
+    overlay.elem.focus();
+    console.log(document.activeElement);
+}
+
+function removeOverlay() {
+    if (overlay === undefined) return;
+
+    // remove overlay
+    overlay.elem.parentNode.removeChild(overlay.elem);
+    overlay = undefined;
 }

@@ -5,7 +5,7 @@
     "permissions": ["activeTab"],
     "background": {
         "scripts": ["background.js"],
-        "persistent": true
+        "persistent": false
     },
     "page_action": {
         "default_popup": "popup.html"
@@ -15,6 +15,7 @@
             "http://*/*",
             "https://*/*"
         ],
+        "run_at": "document_start",
         "js": ["keyScript.js"]
     }],
     "manifest_version": 2

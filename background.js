@@ -1,40 +1,38 @@
-chrome.runtime.onInstalled.addListener(function() {
-    console.log('just installed');
+// chrome.runtime.onInstalled.addListener(function() {
+//     console.log('starting');
+// });
 
-    // respond to content script requests
-    // these are actions that the content script cannot execute
-    chrome.runtime.onMessage.addListener(
-        function(message, sender, callback) {
-            console.log("message: " + message + ', id: ' + sender.tab.id + ', index: ' + sender.tab.index);
+// respond to content script requests
+// these are actions that the content script cannot execute
+chrome.runtime.onMessage.addListener(
+    function(message, sender, callback) {
+        console.log("message: " + message + ', id: ' + sender.tab.id + ', index: ' + sender.tab.index);
 
-            // close the tab
-            switch (message) {
-            case 'close tab':
-                console.log('closing the tab');
-                chrome.tabs.remove([sender.tab.id]);
-                break;
-            case 'highlight left tab':
-                console.log('highlighting left tab');
-                highlight_left(sender.tab);
-                break;
-            case 'highlight right tab':
-                console.log('highlighting right tab');
-                highlight_right(sender.tab);
-                break;
-            case 'new tab':
-                console.log('making a new tab');
-                chrome.tabs.create({});
-                break;
-            case 'open history':
-                console.log('opening history');
-                chrome.tabs.create({url: 'chrome://history/'});
-                break;
-            }
+        // close the tab
+        switch (message) {
+        case 'close tab':
+            console.log('closing the tab');
+            chrome.tabs.remove([sender.tab.id]);
+            break;
+        case 'highlight left tab':
+            console.log('highlighting left tab');
+            highlight_left(sender.tab);
+            break;
+        case 'highlight right tab':
+            console.log('highlighting right tab');
+            highlight_right(sender.tab);
+            break;
+        case 'new tab':
+            console.log('making a new tab');
+            chrome.tabs.create({});
+            break;
+        case 'open history':
+            console.log('opening history');
+            chrome.tabs.create({url: 'chrome://history/'});
+            break;
         }
-    );
-
-    console.log('finished installing');
-});
+    }
+);
 
 function highlight_left(tab) {
     // query tabs to get length
