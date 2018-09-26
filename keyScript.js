@@ -8,8 +8,6 @@ var mouse = {
     y: 0
 };
 
-var keys = [];
-
 var overlay = undefined;
 
 chrome.runtime.sendMessage(
@@ -19,8 +17,6 @@ chrome.runtime.sendMessage(
 window.addEventListener('keydown', (event) => {
     // console.log("pressed " + event.key);
     console.log(event);
-
-    keys[event.key] = true;
 
     // test for spedial overlay keypress
     if (event.altKey && event.ctrlKey && event.metaKey) {
@@ -41,7 +37,6 @@ window.addEventListener('keyup', (event) => {
         decScroll();
     }
 
-    keys[event.key] = undefined;
     // console.log(keys);
 });
 
