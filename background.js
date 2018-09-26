@@ -54,6 +54,16 @@ function highlight_right(tab) {
     });
 }
 
+function reloadAllTabs() {
+    chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, (tabs) => {
+        // loop through all tabs
+        for (var tab of tabs) {
+            console.log(tab);
+            chrome.tabs.executeScript(tab.id, {file: 'reloadScript.js'});
+        }  
+    });
+}
+
 function get_tab_i(tabs, tabID) {
     currTabI = undefined;
     for (var tabI in tabs) {

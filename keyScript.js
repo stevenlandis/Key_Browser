@@ -57,7 +57,16 @@ window.addEventListener('focusout', (event) => {
 window.addEventListener('mousemove', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
-})
+});
+
+// window.addEventListener('load', (event) => {
+//     console.log('loading');
+// });
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    // console.log('DOMContentLoaded');
+    makeOverLay();
+});
 
 function handleKeyPress(event) {
     // make sure a modifier isn't pressed
@@ -115,7 +124,7 @@ function handleKeyPress(event) {
 
         window.open(link,"_self");
     } else if (event.key === 'q') {
-        removeOverlay();
+        setTimeout(removeOverlay, 1);
     }
 }
 
@@ -288,31 +297,40 @@ function makeOverLay() {
         overlay = {};
 
         // make the element
-        overlay.elem = document.createElement('div');
+        overlay.elem = document.createElement('iframe');
 
-        overlay.elem.style.width = '100%';
+        overlay.elem.style.width = '50px';
         overlay.elem.style.height = '50px';
         overlay.elem.style.position = 'fixed';
         overlay.elem.style.zIndex = getMaxZLevel() + 1;
         overlay.elem.style.bottom = 0;
+        overlay.elem.style.right = 0;
         overlay.elem.style.backgroundColor = 'green';
         overlay.elem.tabIndex = 0;
         overlay.elem.addEventListener('blur', (event) => {
-            removeOverlay();
+            // removeOverlay();
         });
-        overlay.elem.addEventListener('keydown', (event) => {
-            console.log('key down');
-            event.stopPropagation();
-        });
+        overlay.elem
 
         // add to body
         document.body.appendChild(overlay.elem);
+
+        overlay.elem.contentDocument.addEventListener('keydown', (event) => {
+            event.stopPropagation();
+            handleKeyPress(event);
+        });
+
+        overlay.elem.contentDocument.addEventListener('keyup', (event) => {
+            if (event.key === 'd' || event.key === 'e') {
+                decScroll();
+            }
+        });
     }
     
     // focus on the element
     document.activeElement.blur();
     overlay.elem.focus();
-    console.log(document.activeElement);
+    // console.log(document.activeElement);
 }
 
 function removeOverlay() {
