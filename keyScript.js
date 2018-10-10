@@ -8,7 +8,11 @@ var mouse = {
     y: 0
 };
 
-var overlay = undefined;
+var keyOverlay = undefined;
+var textOverlay = undefined;
+
+// controls whether the extension is on or not
+var on = true;
 
 chrome.runtime.sendMessage(
     "Starting Content Script"
@@ -19,17 +23,17 @@ window.addEventListener('keydown', (event) => {
     console.log(event);
 
     // test for spedial overlay keypress
-    if (event.altKey && event.ctrlKey && event.metaKey) {
-        makeOverLay();
+    if (event.key === ' ' && event.ctrlKey) {
+        focusKeyOverlay();
     }
-
-    if (overlay === undefined) return;
 
     // make sure not to fire event when typing
     if (isTyping(event)) {
         console.log('   STOPPED: not typing');
         return;
     }
+
+    handleKeyPress(event);
 });
 
 window.addEventListener('keyup', (event) => {
@@ -59,11 +63,16 @@ window.addEventListener('mousemove', (event) => {
 // });
 
 window.addEventListener('DOMContentLoaded', (event) => {
-    // console.log('DOMContentLoaded');
-    makeOverLay();
+    // make the overlays
+    makeTextOverlay();
+    setTextOverlay('Listening', 'LightGreen');
+    makeKeyOverLay();
 });
 
 function handleKeyPress(event) {
+    // make sure the extension is on
+    if (!on) return;
+
     // make sure a modifier isn't pressed
     if (event.ctrlKey || event.altKey || event.metaKey) {
         console.log('   STOPPED: modifier pressed');
@@ -119,7 +128,10 @@ function handleKeyPress(event) {
 
         window.open(link,"_self");
     } else if (event.key === 'q') {
-        setTimeout(removeOverlay, 1);
+        console.log('stopping');
+        setTextOverlay('Off', '#ed9595');
+        on = false;
+        focusBody();
     }
 }
 
@@ -135,7 +147,10 @@ function isTyping(event) {
     }) !== undefined;
 }
 
-// Scrolling Mechanics
+// ---------------------
+//  Scrolling Mechanics
+// ---------------------
+
 var scroll = {
     timer: undefined,
     sign: undefined,
@@ -287,63 +302,74 @@ function getMaxZLevel() {
             .filter(a => !isNaN(a)));
 }
 
-function makeOverLay() {
-    if (overlay === undefined) {
-        var div = document.createElement('div');
-        div.style.width = 'auto';
-        div.style.height = 'auto';
-        div.style.position = 'fixed';
-        div.style.zIndex = getMaxZLevel() + 1;
-        div.style.bottom = 0;
-        div.style.right = 0;
-        div.style.border = 'none';
-        div.style.backgroundColor = 'LightGreen';
+function makeTextOverlay() {
+    textOverlay = document.createElement('div');
+    textOverlay.style.width = 'auto';
+    textOverlay.style.height = 'auto';
+    textOverlay.style.position = 'fixed';
+    textOverlay.style.zIndex = getMaxZLevel() + 1;
+    textOverlay.style.bottom = 0;
+    textOverlay.style.right = 0;
+    textOverlay.style.border = 'none';
+    textOverlay.style.padding = '5px';
+    textOverlay.style.backgroundColor = 'LightGreen';
+    textOverlay.style.fontSize = '12px';
+    textOverlay.style.fontFamily = 'arial';
+    textOverlay.textContent = 'test text';
 
-
-        var frame = document.createElement('iframe');
-        frame.tabIndex = 0;
-        frame.style.width = 'auto';
-        frame.style.height = 'auto';
-        frame.style.border = 'none';
-        // frame.addEventListener('blur', (event) => {
-        //     // removeOverlay();
-        // });
-
-        // add to body
-        div.appendChild(frame);
-        document.body.appendChild(div);
-
-        // add event listeners
-        frame.contentDocument.addEventListener('keydown', (event) => {
-            event.stopPropagation();
-            handleKeyPress(event);
-        });
-
-        frame.contentDocument.addEventListener('keyup', (event) => {
-            if (event.key === 'd' || event.key === 'e') {
-                decScroll();
-            }
-        });
-
-        // remove margin from iframe's body
-        frame.contentDocument.body.style.margin = '1px';
-
-        // add text
-        var txt = document.createElement('div');
-        txt.textContent = 'Locked';
-        frame.contentDocument.body.appendChild(txt);
-    }
-    
-    // focus on the element
-    document.activeElement.blur();
-    frame.focus();
-    // console.log(document.activeElement);
+    document.body.appendChild(textOverlay);
 }
 
-function removeOverlay() {
-    if (overlay === undefined) return;
+function setTextOverlay(txt, color) {
+    if (textOverlay===undefined)return;
 
-    // remove overlay
-    overlay.parentNode.removeChild(overlay);
-    overlay = undefined;
+    textOverlay.textContent = txt;
+
+    if (color!==undefined) {
+        textOverlay.style.backgroundColor = color;
+    }
+}
+
+function makeKeyOverLay() {
+    keyOverlay = document.createElement('iframe');
+    document.body.appendChild(keyOverlay);
+
+    keyOverlay.style.border = 'none';
+    keyOverlay.style.position = 'fixed';
+    keyOverlay.style.width = '0';
+    keyOverlay.style.height = '0';
+
+    keyOverlay.addEventListener('blur', (event) => {
+        // make sure the extension is on
+        if (!on) return;
+
+        setTextOverlay('Listening', 'LightGreen');
+    });
+
+    // add event listeners
+    keyOverlay.contentDocument.addEventListener('keydown', (event) => {
+        event.stopPropagation();
+        handleKeyPress(event);
+    });
+
+    keyOverlay.contentDocument.addEventListener('keyup', (event) => {
+        if (event.key === 'd' || event.key === 'e') {
+            decScroll();
+        }
+    });
+}
+
+function focusKeyOverlay() {
+    if (keyOverlay===undefined)return;
+
+    on = true;
+
+    document.activeElement.blur();
+    keyOverlay.focus();
+    setTextOverlay('Locked', 'LightBlue');
+}
+
+function focusBody() {
+    document.activeElement.blur();
+    document.body.focus();
 }

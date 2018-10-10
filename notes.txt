@@ -1,0 +1,8 @@
+----------------------
+ Ideas for the future
+----------------------
+
+Figure out how to modifier + click links to open in new window
+
+Figure out links (maybe searching) or something visual
+    also figure out how to filter good links from bad links
