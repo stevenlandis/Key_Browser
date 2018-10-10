@@ -294,13 +294,14 @@ function makeOverLay() {
         // make the element
         overlay.elem = document.createElement('iframe');
 
-        overlay.elem.style.width = '50px';
-        overlay.elem.style.height = '50px';
+        overlay.elem.style.width = 'auto';
+        overlay.elem.style.height = 'auto';
         overlay.elem.style.position = 'fixed';
         overlay.elem.style.zIndex = getMaxZLevel() + 1;
         overlay.elem.style.bottom = 0;
         overlay.elem.style.right = 0;
-        overlay.elem.style.backgroundColor = 'green';
+        overlay.elem.style.border = 'none';
+        overlay.elem.style.backgroundColor = 'LightGreen';
         overlay.elem.tabIndex = 0;
         overlay.elem.addEventListener('blur', (event) => {
             // removeOverlay();
@@ -310,6 +311,7 @@ function makeOverLay() {
         // add to body
         document.body.appendChild(overlay.elem);
 
+        // add event listeners
         overlay.elem.contentDocument.addEventListener('keydown', (event) => {
             event.stopPropagation();
             handleKeyPress(event);
@@ -320,6 +322,14 @@ function makeOverLay() {
                 decScroll();
             }
         });
+
+        // remove margin from iframe's body
+        overlay.elem.contentDocument.body.style.margin = '1px';
+
+        // add text
+        var txt = document.createElement('div');
+        txt.textContent = 'Locked';
+        overlay.elem.contentDocument.body.appendChild(txt);
     }
     
     // focus on the element
