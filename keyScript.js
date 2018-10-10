@@ -289,52 +289,54 @@ function getMaxZLevel() {
 
 function makeOverLay() {
     if (overlay === undefined) {
-        overlay = {};
+        var div = document.createElement('div');
+        div.style.width = 'auto';
+        div.style.height = 'auto';
+        div.style.position = 'fixed';
+        div.style.zIndex = getMaxZLevel() + 1;
+        div.style.bottom = 0;
+        div.style.right = 0;
+        div.style.border = 'none';
+        div.style.backgroundColor = 'LightGreen';
 
-        // make the element
-        overlay.elem = document.createElement('iframe');
 
-        overlay.elem.style.width = 'auto';
-        overlay.elem.style.height = 'auto';
-        overlay.elem.style.position = 'fixed';
-        overlay.elem.style.zIndex = getMaxZLevel() + 1;
-        overlay.elem.style.bottom = 0;
-        overlay.elem.style.right = 0;
-        overlay.elem.style.border = 'none';
-        overlay.elem.style.backgroundColor = 'LightGreen';
-        overlay.elem.tabIndex = 0;
-        overlay.elem.addEventListener('blur', (event) => {
-            // removeOverlay();
-        });
-        overlay.elem
+        var frame = document.createElement('iframe');
+        frame.tabIndex = 0;
+        frame.style.width = 'auto';
+        frame.style.height = 'auto';
+        frame.style.border = 'none';
+        // frame.addEventListener('blur', (event) => {
+        //     // removeOverlay();
+        // });
 
         // add to body
-        document.body.appendChild(overlay.elem);
+        div.appendChild(frame);
+        document.body.appendChild(div);
 
         // add event listeners
-        overlay.elem.contentDocument.addEventListener('keydown', (event) => {
+        frame.contentDocument.addEventListener('keydown', (event) => {
             event.stopPropagation();
             handleKeyPress(event);
         });
 
-        overlay.elem.contentDocument.addEventListener('keyup', (event) => {
+        frame.contentDocument.addEventListener('keyup', (event) => {
             if (event.key === 'd' || event.key === 'e') {
                 decScroll();
             }
         });
 
         // remove margin from iframe's body
-        overlay.elem.contentDocument.body.style.margin = '1px';
+        frame.contentDocument.body.style.margin = '1px';
 
         // add text
         var txt = document.createElement('div');
         txt.textContent = 'Locked';
-        overlay.elem.contentDocument.body.appendChild(txt);
+        frame.contentDocument.body.appendChild(txt);
     }
     
     // focus on the element
     document.activeElement.blur();
-    overlay.elem.focus();
+    frame.focus();
     // console.log(document.activeElement);
 }
 
@@ -342,6 +344,6 @@ function removeOverlay() {
     if (overlay === undefined) return;
 
     // remove overlay
-    overlay.elem.parentNode.removeChild(overlay.elem);
+    overlay.parentNode.removeChild(overlay);
     overlay = undefined;
 }
