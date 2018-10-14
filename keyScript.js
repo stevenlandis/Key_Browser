@@ -315,6 +315,7 @@ function makeTextOverlay() {
     textOverlay.style.backgroundColor = 'LightGreen';
     textOverlay.style.fontSize = '12px';
     textOverlay.style.fontFamily = 'arial';
+    textOverlay.style.color = 'black';
     textOverlay.textContent = 'test text';
 
     document.body.appendChild(textOverlay);
