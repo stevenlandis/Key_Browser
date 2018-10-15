@@ -190,10 +190,11 @@ function doScroll() {
     }
 
     // scroll
-    window.scrollTo(
-        window.scrollX,
-        window.scrollY + scroll.sign * scroll.speed
-    );
+    window.scrollTo({
+        left: window.scrollX,
+        top: window.scrollY + scroll.sign * scroll.speed,
+        behavior: 'instant'
+    });
 
     // increment speed
     if (scroll.state) {
