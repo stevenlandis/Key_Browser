@@ -2,7 +2,7 @@
     "name": "Key Browser",
     "version": "1.0",
     "description": "Browse the web with your keys",
-    "permissions": ["activeTab"],
+    "permissions": ["activeTab", "declarativeContent"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
@@ -15,8 +15,20 @@
             "http://*/*",
             "https://*/*"
         ],
+        "exclude_matches": [
+            "https://github.com/*",
+            "https://drive.google.com/*",
+            "https://docs.google.com/*",
+            "https://www.messenger.com/*",
+            "https://calendar.google.com/*"
+        ],
         "run_at": "document_start",
-        "js": ["keyScript.js"]
+        "js": [
+            "printing.js",
+            "keyScript.js",
+            "scrolling.js",
+            "commandOverlay.js"
+        ]
     }],
     "manifest_version": 2
 }

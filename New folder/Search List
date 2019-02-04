@@ -1,0 +1,15 @@
+Search List
+array of objects with two properties:
+	- str: string that triggers the command
+	- fcn: function called that returns the following search list
+		   or undefined if command is final
+	- args: array of arguments to pass to fcn, useful for creating dynamic lists
+
+main:
+	exit {
+		function
+		args
+	}
+	go to link {
+
+	}
