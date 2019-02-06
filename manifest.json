@@ -7,7 +7,7 @@
         "scripts": ["background.js"],
         "persistent": false
     },
-    "page_action": {
+    "browser_action": {
         "default_popup": "popup.html"
     },
     "content_scripts": [{
@@ -30,5 +30,12 @@
             "commandOverlay.js"
         ]
     }],
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "windows": "Ctrl+Space"
+            }
+        }
+    },
     "manifest_version": 2
 }

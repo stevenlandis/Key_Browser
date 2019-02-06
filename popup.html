@@ -2,15 +2,26 @@
 <html>
     <head>
         <style>
-            button {
-                height: 30px;
-                width: 30px;
+            body {
+                width: 500px;
+            }
+            .CommandInput {
+                border: none;
+                width: 100%;
+            }
+            .CommandInput:focus {
                 outline: none;
+            }
+            .Result {
+                background: rgb(199,203,209);
             }
         </style>
     </head>
-    <p>Hey there</p>
     <body>
-        <button id="changeColor"></button>
+        <script src='popup.js'></script>
+        <input autofocus class='CommandInput'>
+        <div class='ResultContainer'>
+            <!-- <div class="Result">Result</div> -->
+        </div>
     </body>
 </html>
