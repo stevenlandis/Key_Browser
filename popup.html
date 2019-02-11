@@ -4,23 +4,33 @@
         <style>
             body {
                 width: 500px;
+                margin: 0;
             }
-            .CommandInput {
+            #CommandInput {
                 border: none;
                 width: 100%;
+                font-size: 20px;
+                margin-left: 8px;
+                margin-right: 8px;
+                margin-top: 8px;
             }
-            .CommandInput:focus {
+            #CommandInput:focus {
                 outline: none;
             }
+            #ResultContainer {
+                margin-top: 8px;
+            }
             .Result {
-                background: rgb(199,203,209);
+                font-size: 20px;
+                padding-left: 8px;
             }
         </style>
     </head>
     <body>
+        <script src='BigEval.js'></script>
         <script src='popup.js'></script>
-        <input autofocus class='CommandInput'>
-        <div class='ResultContainer'>
+        <input autofocus id='CommandInput' spellcheck='false'>
+        <div id='ResultContainer'>
             <!-- <div class="Result">Result</div> -->
         </div>
     </body>
